@@ -1,11 +1,11 @@
-const CACHE_NAME = "cattimer-v39";
+const CACHE_NAME = "cattimer-v40";
 
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css?v=39",
-  "./app.js?v=39",
-  "./manifest.webmanifest?v=39",
+  "./styles.css?v=40",
+  "./app.js?v=40",
+  "./manifest.webmanifest?v=40",
   "./assets/hero-cat.png",
   "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",

@@ -12,10 +12,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.webmanifest?v=39" />
+    <link rel="manifest" href="manifest.webmanifest?v=40" />
     <link rel="icon" href="icons/icon-192.png" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-    <link rel="stylesheet" href="styles.css?v=39" />
+    <link rel="stylesheet" href="styles.css?v=40" />
   </head>
   <body>
     <div class="app-shell">
@@ -74,6 +74,7 @@
             <button class="register-tab active" type="button" data-register-tab="add" role="tab" aria-selected="true">猫追加</button>
             <button class="register-tab" type="button" data-register-tab="list" role="tab" aria-selected="false">猫一覧</button>
             <button class="register-tab" type="button" data-register-tab="home" role="tab" aria-selected="false">ホーム表示</button>
+            <button class="register-tab" type="button" data-register-tab="backup" role="tab" aria-selected="false">バックアップ</button>
           </div>
 
           <section class="register-panel active" id="cat-register-panel" role="tabpanel">
@@ -189,6 +190,20 @@
             </form>
 
           </section>
+
+          <section class="settings-section register-panel" id="backup-panel" aria-labelledby="backup-title" role="tabpanel">
+            <div class="section-heading">
+              <h3 id="backup-title">バックアップ</h3>
+            </div>
+            <p class="form-message hidden" id="backup-message" role="status"></p>
+            <div class="backup-actions">
+              <button class="settings-submit" type="button" id="export-backup-button">書き出す</button>
+              <label class="backup-file-button">
+                <input type="file" id="import-backup-input" accept="application/json,.json" />
+                <span>読み込む</span>
+              </label>
+            </div>
+          </section>
         </section>
 
         <section class="view" id="manage-view" aria-labelledby="manage-title">
@@ -254,6 +269,6 @@
       </div>
     </template>
 
-    <script src="app.js?v=39"></script>
+    <script src="app.js?v=40"></script>
   </body>
 </html>

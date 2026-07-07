@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS = {
 
 const PHOTO_MAX_BYTES = 80 * 1024;
 const MAX_CUSTOM_FIELDS = 10;
+const BACKUP_VERSION = 1;
 
 const state = {
   cats: [],
@@ -58,6 +59,10 @@ const elements = {
   catRegisterPanel: document.querySelector("#cat-register-panel"),
   catListPanel: document.querySelector("#cat-list-panel"),
   homeDisplayPanel: document.querySelector("#home-display-panel"),
+  backupPanel: document.querySelector("#backup-panel"),
+  backupMessage: document.querySelector("#backup-message"),
+  exportBackupButton: document.querySelector("#export-backup-button"),
+  importBackupInput: document.querySelector("#import-backup-input"),
   catName: document.querySelector("#cat-name"),
   catSex: document.querySelector("#cat-sex"),
   catBirthday: document.querySelector("#cat-birthday"),
@@ -620,6 +625,112 @@ async function saveDisplaySettings(event) {
   flashButton(elements.settingsSubmitButton, "保存しました");
 }
 
+async function exportBackup() {
+  const backup = {
+    app: "CatTimer",
+    version: BACKUP_VERSION,
+    exportedAt: new Date().toISOString(),
+    cats: state.cats,
+    events: state.events,
+    settings: state.settings,
+  };
+
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const fileName = `cattimer-backup-${backupTimestamp()}.json`;
+
+  try {
+    if (typeof File === "function" && navigator.canShare && navigator.share) {
+      const file = new File([blob], fileName, { type: "application/json" });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "CatTimerバックアップ",
+        });
+        clearMessage(elements.backupMessage);
+        flashButton(elements.exportBackupButton, "共有しました");
+        return;
+      }
+    }
+
+    downloadBackupBlob(blob, fileName);
+    clearMessage(elements.backupMessage);
+    flashButton(elements.exportBackupButton, "書き出しました");
+  } catch (error) {
+    if (error?.name === "AbortError") return;
+    console.error("Failed to export backup", error);
+    showMessage(elements.backupMessage, "バックアップを書き出せませんでした。", "error");
+    flashButton(elements.exportBackupButton, "失敗", false);
+  }
+}
+
+function downloadBackupBlob(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function importBackup(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    const backup = JSON.parse(await file.text());
+    const restored = normalizeBackup(backup);
+    const confirmed = window.confirm("現在のCatTimerデータをバックアップ内容で置き換えます。読み込みますか？");
+    if (!confirmed) return;
+
+    if (!writeJson(STORAGE_KEYS.cats, restored.cats) || !writeJson(STORAGE_KEYS.events, restored.events) || !writeJson(STORAGE_KEYS.settings, restored.settings)) {
+      throw new Error("Failed to write backup data");
+    }
+
+    state.cats = restored.cats;
+    state.events = restored.events;
+    state.settings = restored.settings;
+    state.selectedCatId = getActiveCats()[0]?.id || state.cats[0]?.id || "";
+    resetForm();
+    render();
+    switchRegisterTab("backup");
+    showMessage(elements.backupMessage, "バックアップを読み込みました。");
+  } catch (error) {
+    console.error("Failed to import backup", error);
+    showMessage(elements.backupMessage, "バックアップを読み込めませんでした。", "error");
+  } finally {
+    elements.importBackupInput.value = "";
+  }
+}
+
+function normalizeBackup(backup) {
+  if (!backup || backup.app !== "CatTimer" || !Array.isArray(backup.cats) || !Array.isArray(backup.events)) {
+    throw new Error("Invalid backup");
+  }
+
+  return {
+    cats: backup.cats.map((cat) => ({ ...cat, sex: normalizeSex(cat.sex) })),
+    events: backup.events,
+    settings: { ...DEFAULT_SETTINGS, ...(backup.settings || {}) },
+  };
+}
+
+function backupTimestamp() {
+  const date = new Date();
+  const parts = new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}${values.month}${values.day}-${values.hour}${values.minute}`;
+}
+
 async function saveCat(event) {
   event.preventDefault();
   clearMessage(elements.formMessage);
@@ -1149,6 +1260,8 @@ function bindEvents() {
   });
 
   elements.displayForm.addEventListener("submit", saveDisplaySettings);
+  elements.exportBackupButton.addEventListener("click", exportBackup);
+  elements.importBackupInput.addEventListener("change", importBackup);
   elements.catForm.addEventListener("submit", saveCat);
   elements.catPhoto.addEventListener("change", handlePhotoChange);
   elements.cropX.addEventListener("input", drawCropPreview);
@@ -1227,6 +1340,7 @@ function switchRegisterTab(selected) {
   elements.catRegisterPanel.classList.toggle("active", selected === "add");
   elements.catListPanel.classList.toggle("active", selected === "list");
   elements.homeDisplayPanel.classList.toggle("active", selected === "home");
+  elements.backupPanel.classList.toggle("active", selected === "backup");
 }
 
 function switchManageTab(selected) {

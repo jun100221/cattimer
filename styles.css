@@ -343,7 +343,7 @@ h3 {
 
 .register-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-bottom: 14px;
 }
@@ -354,6 +354,7 @@ h3 {
   border-radius: 8px;
   background: var(--surface);
   color: var(--text);
+  font-size: 0.9rem;
   font-weight: 800;
 }
 
@@ -375,6 +376,30 @@ h3 {
 .display-form {
   display: grid;
   gap: 16px;
+}
+
+.backup-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.backup-file-button {
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  color: var(--primary);
+  font-weight: 800;
+  position: relative;
+  overflow: hidden;
+}
+
+.backup-file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
 }
 
 .form-message {
