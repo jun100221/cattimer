@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#eff8ff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="CatTimer" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>CatTimer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.webmanifest?v=39" />
+    <link rel="icon" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles.css?v=39" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar hidden">
+        <button class="icon-button back-button hidden" type="button" data-action="home" aria-label="ホームへ戻る">
+          <span aria-hidden="true">‹</span>
+        </button>
+        <div>
+          <h1></h1>
+        </div>
+      </header>
+
+      <main>
+        <section class="view active" id="home-view" aria-labelledby="home-title">
+          <div class="home-hero">
+            <div>
+              <h2 id="home-title">猫の記録をすぐ残せる</h2>
+              <p id="home-lead">投薬、給餌、目薬、食事、排便の時刻をワンタップで保存します。</p>
+            </div>
+            <img class="hero-cat-art" src="assets/hero-cat.png" alt="" aria-hidden="true" />
+          </div>
+
+          <div class="home-actions">
+            <button class="primary-action" type="button" data-action="manage">
+              <span class="action-icon" aria-hidden="true">✓</span>
+              <span>
+                <strong>記録</strong>
+              </span>
+            </button>
+            <button class="primary-action" type="button" data-action="register">
+              <span class="action-icon" aria-hidden="true">＋</span>
+              <span>
+                <strong>登録</strong>
+              </span>
+            </button>
+          </div>
+
+          <section class="summary-panel" aria-labelledby="summary-title">
+            <div class="section-heading">
+              <h3 id="summary-title">登録中の猫</h3>
+              <span id="cat-count">0匹</span>
+            </div>
+            <div class="cat-strip" id="home-cat-list"></div>
+          </section>
+        </section>
+
+        <section class="view" id="register-view" aria-labelledby="register-title">
+          <div class="section-heading">
+            <h2 id="register-title">猫の登録</h2>
+            <div class="heading-actions">
+              <button class="ghost-button" type="button" data-action="home">ホーム</button>
+            </div>
+          </div>
+
+          <div class="register-tabs" role="tablist" aria-label="登録画面の切り替え">
+            <button class="register-tab active" type="button" data-register-tab="add" role="tab" aria-selected="true">猫追加</button>
+            <button class="register-tab" type="button" data-register-tab="list" role="tab" aria-selected="false">猫一覧</button>
+            <button class="register-tab" type="button" data-register-tab="home" role="tab" aria-selected="false">ホーム表示</button>
+          </div>
+
+          <section class="register-panel active" id="cat-register-panel" role="tabpanel">
+            <form id="cat-form" class="cat-form">
+              <input type="hidden" id="cat-id" />
+              <p class="form-message hidden" id="form-message" role="status"></p>
+
+              <label class="photo-picker">
+                <input type="file" id="cat-photo" accept="image/*" />
+                <img id="photo-preview" alt="" class="hidden" />
+                <span id="photo-placeholder">写真を選択</span>
+              </label>
+
+              <section class="crop-editor hidden" id="crop-editor" aria-labelledby="crop-editor-title">
+                <div class="section-heading">
+                  <h3 id="crop-editor-title">写真の位置調整</h3>
+                </div>
+                <canvas id="crop-canvas" width="320" height="320" aria-label="正方形に切り抜く写真プレビュー"></canvas>
+                <label>
+                  <span>左右の中心</span>
+                  <input type="range" id="crop-x" min="0" max="100" value="50" />
+                </label>
+                <label>
+                  <span>上下の中心</span>
+                  <input type="range" id="crop-y" min="0" max="100" value="50" />
+                </label>
+                <label>
+                  <span>拡大・縮小</span>
+                  <input type="range" id="crop-zoom" min="1" max="3" step="0.05" value="1" />
+                </label>
+                <div class="crop-actions">
+                  <button class="crop-submit" type="button" id="apply-crop-button">写真を確定</button>
+                  <button class="crop-cancel" type="button" id="cancel-photo-button">写真を外す</button>
+                </div>
+              </section>
+
+              <div class="field-grid">
+                <label>
+                  <span>名前</span>
+                  <input type="text" id="cat-name" required placeholder="例: みかん" />
+                </label>
+                <label>
+                  <span>性別</span>
+                  <select id="cat-sex">
+                    <option value="">未選択</option>
+                    <option value="メス">メス</option>
+                    <option value="オス">オス</option>
+                    <option value="不明">不明</option>
+                  </select>
+                </label>
+                <label>
+                  <span>生年月日</span>
+                  <input type="date" id="cat-birthday" />
+                </label>
+                <label>
+                  <span>保護月日</span>
+                  <input type="date" id="cat-rescue-date" />
+                </label>
+                <label>
+                  <span>体重</span>
+                  <input type="text" id="cat-weight" inputmode="decimal" placeholder="例: 3.2kg" />
+                </label>
+                <label>
+                  <span>病歴</span>
+                  <textarea id="cat-medical-history" rows="4" placeholder="慢性腎臓病、猫風邪など"></textarea>
+                </label>
+                <label class="wide">
+                  <span>備考</span>
+                  <textarea id="cat-notes" rows="4" placeholder="性格、食べ方、注意点など"></textarea>
+                </label>
+              </div>
+
+              <section class="custom-fields" aria-labelledby="custom-fields-title">
+                <div class="section-heading">
+                  <h3 id="custom-fields-title">記録する項目</h3>
+                  <button class="ghost-button" type="button" id="add-custom-field-button">追加</button>
+                </div>
+                <div class="custom-fields-list" id="custom-fields-list"></div>
+              </section>
+
+              <button class="submit-button" type="submit" id="cat-submit-button">保存する</button>
+            </form>
+          </section>
+
+          <section class="register-panel" id="cat-list-panel" aria-labelledby="registered-title" role="tabpanel">
+            <section class="list-section">
+              <div class="section-heading">
+                <h3 id="registered-title">猫一覧</h3>
+              </div>
+              <div id="registered-cat-list" class="cat-list"></div>
+            </section>
+          </section>
+
+          <section class="settings-section register-panel" id="home-display-panel" aria-labelledby="display-settings-title" role="tabpanel">
+            <div class="section-heading">
+              <h3 id="display-settings-title">ホーム表示</h3>
+            </div>
+            <form id="display-form" class="display-form">
+              <p class="form-message hidden" id="settings-message" role="status"></p>
+              <label>
+                <span>大きな見出し</span>
+                <input type="text" id="display-title" maxlength="32" placeholder="例: 佐藤さんの猫たち" />
+              </label>
+              <label>
+                <span>説明文</span>
+                <textarea id="display-lead" rows="3" maxlength="90" placeholder="例: 毎日のケアを猫ごとに記録します。"></textarea>
+              </label>
+              <label>
+                <span>一覧の見出し</span>
+                <input type="text" id="display-list-title" maxlength="28" placeholder="例: みんなの記録" />
+              </label>
+              <button class="settings-submit" type="submit" id="settings-submit-button">表示を保存</button>
+            </form>
+
+          </section>
+        </section>
+
+        <section class="view" id="manage-view" aria-labelledby="manage-title">
+          <div class="section-heading">
+            <h2 id="manage-title">記録</h2>
+            <button class="ghost-button" type="button" data-action="home">ホーム</button>
+          </div>
+
+          <label class="select-label">
+            <select id="manage-cat-select" aria-label="猫を選択"></select>
+          </label>
+
+          <article class="selected-cat" id="selected-cat-card"></article>
+
+          <div class="tabs" role="tablist" aria-label="記録画面の切り替え">
+            <button class="tab active" type="button" data-tab="care" role="tab" aria-selected="true">ケア</button>
+            <button class="tab" type="button" data-tab="history" role="tab" aria-selected="false">履歴</button>
+            <button class="tab" type="button" data-tab="settings" role="tab" aria-selected="false">設定</button>
+          </div>
+
+          <section id="care-panel" class="tab-panel active" role="tabpanel">
+            <div class="care-actions" id="care-actions"></div>
+            
+            <div class="care-row" style="align-items: stretch; margin-top: 1rem;">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div>
+                  <strong class="care-title" style="display: block; margin-bottom: 4px;">メモ</strong>
+                  <div id="latest-memo-text" class="care-last" style="white-space: pre-wrap; word-break: break-word;">未記録</div>
+                </div>
+                <textarea id="memo-input" placeholder="新しいメモを入力..." rows="2" maxlength="100" style="width: 100%; box-sizing: border-box; resize: none; padding: 8px; border: 1px solid var(--line); border-radius: 8px; font-family: inherit; font-size: 0.95rem; background: #fff;"></textarea>
+              </div>
+              <button class="care-button" type="button" id="save-memo-button" style="align-self: flex-end;">記録</button>
+            </div>
+          </section>
+
+          <section id="history-panel" class="tab-panel" role="tabpanel">
+            <div class="filter-row" id="history-filters"></div>
+            <div class="history-list" id="history-list"></div>
+          </section>
+
+          <section id="settings-panel" class="tab-panel" role="tabpanel">
+            <div class="settings-list" id="cat-settings"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-backdrop hidden" id="delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-dialog-title">
+      <div class="confirm-dialog">
+        <h3 id="delete-dialog-title">本当に削除しますか</h3>
+        <p id="delete-dialog-message"></p>
+        <div class="confirm-actions">
+          <button class="modal-button secondary" type="button" id="cancel-delete-button">戻る</button>
+          <button class="modal-button danger" type="button" id="confirm-delete-button">削除</button>
+        </div>
+      </div>
+    </div>
+
+    <template id="empty-state-template">
+      <div class="empty-state">
+        <strong></strong>
+        <p></p>
+      </div>
+    </template>
+
+    <script src="app.js?v=39"></script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "CatTimer",
+  "short_name": "CatTimer",
+  "description": "保護猫のプロフィールとケア履歴を記録するスマホ向けアプリ",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eff8ff",
+  "theme_color": "#6fafd8",
+  "lang": "ja",
+  "categories": ["health", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
