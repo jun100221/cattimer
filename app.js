@@ -115,6 +115,15 @@ async function saveEventRecord(event) {
   }
 }
 
+async function deleteEventRecord(eventId) {
+  const previousEvents = state.events;
+  state.events = state.events.filter((item) => item.id !== eventId);
+  if (!writeJson(STORAGE_KEYS.events, state.events)) {
+    state.events = previousEvents;
+    throw new Error("Failed to delete event");
+  }
+}
+
 async function saveSettings() {
   if (!writeJson(STORAGE_KEYS.settings, state.settings)) {
     throw new Error("Failed to save settings");
@@ -418,6 +427,14 @@ function renderHistory(catId) {
     const item = document.createElement("article");
     item.className = "history-item";
 
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "history-delete-button";
+    deleteButton.type = "button";
+    deleteButton.textContent = "🗑️";
+    deleteButton.title = "この履歴を削除";
+    deleteButton.setAttribute("aria-label", "この履歴を削除");
+    deleteButton.addEventListener("click", () => deleteEvent(event));
+
     if (event.type === "memo") {
       item.classList.add("is-memo");
       
@@ -428,8 +445,10 @@ function renderHistory(catId) {
       headerLeft.append(createText("span", "メモ", "history-type"));
       headerLeft.append(createText("small", formatFullDate(eventCreatedAt(event))));
       
-      const time = createText("strong", formatTime(eventCreatedAt(event)), "history-time");
-      header.append(headerLeft, time);
+      const actions = document.createElement("div");
+      actions.className = "history-actions";
+      actions.append(createText("strong", formatTime(eventCreatedAt(event)), "history-time"), deleteButton);
+      header.append(headerLeft, actions);
       
       item.append(header, createText("div", event.text, "history-memo-text"));
     } else {
@@ -437,12 +456,28 @@ function renderHistory(catId) {
       body.append(createText("span", event.label || careLabel(event.type, catId), "history-type"));
       body.append(createText("small", formatFullDate(eventCreatedAt(event))));
       
-      const time = createText("strong", formatTime(eventCreatedAt(event)), "history-time");
-      item.append(body, time);
+      const actions = document.createElement("div");
+      actions.className = "history-actions";
+      actions.append(createText("strong", formatTime(eventCreatedAt(event)), "history-time"), deleteButton);
+      item.append(body, actions);
     }
 
     elements.historyList.append(item);
   });
+}
+
+async function deleteEvent(event) {
+  const label = event.type === "memo" ? "メモ" : event.label || careLabel(event.type, event.catId);
+  const timestamp = `${formatFullDate(eventCreatedAt(event))} ${formatTime(eventCreatedAt(event))}`;
+  if (!window.confirm(`${label}の記録（${timestamp}）を削除しますか？`)) return;
+
+  try {
+    await deleteEventRecord(event.id);
+    renderManage();
+  } catch (error) {
+    console.error("Failed to delete event", error);
+    window.alert("履歴を削除できませんでした。Safariの空き容量を確認してください。");
+  }
 }
 
 function getLastEventText(catId, type) {

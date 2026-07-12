@@ -51,6 +51,10 @@ CatTimerは、Firebaseやサーバーにデータを保存しません。
 大切な記録は、登録画面の「バックアップ」からJSONファイルを書き出し、iCloud Driveやファイルアプリなどに保存してください。
 復元するときは、同じ画面からバックアップファイルを読み込めます。
 
+## 使用フォント
+
+画面の書体には、Google Fontsから配信される「M PLUS Rounded 1c」を使用しています。SIL Open Font License 1.1で公開されている無料のフォントです。
+
 ## 公開時の注意
 
 iPhoneでPWAとして安定して使うには、HTTPSで配信してください。GitHub Pages、Netlify、Vercel、Cloudflare Pagesなどに置くと、Safariからホーム画面に追加して使えます。
